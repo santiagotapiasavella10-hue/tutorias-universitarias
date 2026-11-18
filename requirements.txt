@@ -1,0 +1,2 @@
+# El prototipo solo usa la biblioteca estándar de Python 3.10+
+# (tkinter, sqlite3, hashlib, unittest). No hay que instalar nada.
