@@ -8,8 +8,8 @@ Aplicación de escritorio en **Python** que conecta a estudiantes con tutores: e
 
 | Nombre | Rol en el proyecto |
 |---|---|
-| _Nombre 1_ | _por definir_ |
-| _Nombre 2_ | _por definir_ |
+| _Nombre 1_ | Santiago Tapias Avella |
+| _Nombre 2_ | _Harlen Moreno |
 | _Nombre 3_ | _por definir_ |
 
 ## Problema que resuelve
