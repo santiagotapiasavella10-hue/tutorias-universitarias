@@ -4,6 +4,7 @@ from tkinter import ttk
 
 from src.data.database import Database
 from src.services.auth_service import AuthService
+from src.services.ia_service import AsistenteTutorias, ClienteIA, cargar_config
 from src.services.tutoria_service import TutoriaService
 from src.ui.admin_view import AdminView
 from src.ui.estudiante_view import EstudianteView
@@ -22,6 +23,7 @@ class App(tk.Tk):
         self.minsize(760, 500)
         ttk.Style(self).theme_use("clam")
         self.auth, self.tutorias = AuthService(db), TutoriaService(db)
+        self.ia = AsistenteTutorias(ClienteIA(cargar_config()))
         self.contenedor = ttk.Frame(self)
         self.contenedor.pack(fill="both", expand=True)
         self._vista = None

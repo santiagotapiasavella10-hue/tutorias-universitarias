@@ -1,4 +1,6 @@
 """Componentes de interfaz reutilizables."""
+import queue
+import threading
 import tkinter as tk
 from tkinter import messagebox, ttk
 
@@ -15,6 +17,39 @@ def ejecutar(accion, *args, **kwargs):
     except Exception as e:  # error inesperado: no cerrar la app
         messagebox.showerror("Error inesperado", str(e))
     return False, None
+
+
+def en_segundo_plano(widget, trabajo, al_terminar):
+    """Ejecuta trabajo() en otro hilo para no congelar la ventana y llama a
+    al_terminar(ok, resultado) en el hilo de la interfaz. Si falla, resultado es el mensaje.
+    Dentro de trabajo() no se debe usar la base de datos ni ningún widget."""
+    cola = queue.Queue()
+
+    def correr():
+        try:
+            cola.put((True, trabajo()))
+        except AppError as e:
+            cola.put((False, str(e)))
+        except Exception as e:  # error inesperado: no cerrar la app
+            cola.put((False, f"Error inesperado: {e}"))
+
+    def revisar():
+        try:
+            ok, resultado = cola.get_nowait()
+        except queue.Empty:
+            try:
+                widget.after(100, revisar)
+            except tk.TclError:  # la vista se cerró mientras esperaba
+                pass
+            return
+        try:
+            if widget.winfo_exists():
+                al_terminar(ok, resultado)
+        except tk.TclError:
+            pass
+
+    threading.Thread(target=correr, daemon=True).start()
+    widget.after(100, revisar)
 
 
 def crear_tabla(padre, columnas, anchos=None, alto=10):
