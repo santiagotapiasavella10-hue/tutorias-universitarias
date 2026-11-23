@@ -11,3 +11,7 @@ class ValidationError(AppError):
 
 class ReglaNegocioError(AppError):
     """Operación que viola una regla del negocio (cruce de horarios, etc.)."""
+
+
+class ServicioIAError(AppError):
+    """El servicio de IA no está configurado, no responde o devolvió algo inesperado."""

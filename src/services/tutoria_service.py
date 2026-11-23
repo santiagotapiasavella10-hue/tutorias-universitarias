@@ -89,6 +89,31 @@ class TutoriaService:
         sql += " ORDER BY h.fecha, h.hora"
         return self.db.conn.execute(sql, params).fetchall()
 
+    def listar_horarios_con_calificacion(self, materia_id=None, hoy=None):
+        """Horarios libres, con el promedio y el número de tutorías realizadas del tutor.
+        Es el contexto que se le envía al asistente de IA."""
+        hoy = (hoy or datetime.now()).strftime("%Y-%m-%d")
+        sql = """SELECT h.id, m.nombre AS materia, u.nombre AS tutor, h.fecha, h.hora,
+                        (SELECT ROUND(AVG(c2.calificacion), 2)
+                           FROM citas c2 JOIN horarios h2 ON h2.id = c2.horario_id
+                          WHERE h2.tutor_id = h.tutor_id AND c2.estado = 'realizada'
+                            AND c2.calificacion IS NOT NULL) AS promedio,
+                        (SELECT COUNT(*)
+                           FROM citas c2 JOIN horarios h2 ON h2.id = c2.horario_id
+                          WHERE h2.tutor_id = h.tutor_id AND c2.estado = 'realizada') AS realizadas
+                 FROM horarios h
+                 JOIN materias m ON m.id = h.materia_id
+                 JOIN usuarios u ON u.id = h.tutor_id
+                 WHERE h.fecha >= ?
+                   AND NOT EXISTS (SELECT 1 FROM citas c WHERE c.horario_id = h.id
+                                   AND c.estado IN ('pendiente','aceptada','realizada'))"""
+        params = [hoy]
+        if materia_id:
+            sql += " AND h.materia_id = ?"
+            params.append(materia_id)
+        sql += " ORDER BY h.fecha, h.hora"
+        return [dict(f) for f in self.db.conn.execute(sql, params).fetchall()]
+
     # ---------- Citas ----------
     def agendar_cita(self, estudiante_id, horario_id) -> int:
         horario = self.db.conn.execute(

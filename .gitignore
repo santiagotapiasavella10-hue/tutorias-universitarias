@@ -5,6 +5,9 @@ venv/
 .venv/
 .pytest_cache/
 
+# Claves del servicio de IA (nunca se suben)
+.env
+
 # Base de datos local (se regenera al ejecutar)
 data/*.db
 
